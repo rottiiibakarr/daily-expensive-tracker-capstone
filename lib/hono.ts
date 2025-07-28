@@ -4,7 +4,7 @@ import { hc } from 'hono/client';
 import { createMiddleware } from 'hono/factory';
 import { HTTPException } from 'hono/http-exception';
 
-import { AppType } from '@/app/api/[[...route]]/route';
+import { AppType } from '@/app/[[...route]]/route';
 
 export const client = hc<AppType>(process.env.NEXT_PUBLIC_APP_URL!);
 
