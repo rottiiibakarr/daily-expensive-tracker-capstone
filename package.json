@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@clerk/clerk-sdk-node": "^5.1.6",
     "@clerk/nextjs": "^6.27.1",
     "@hono/zod-validator": "^0.7.2",
     "@neondatabase/serverless": "^1.0.1",
