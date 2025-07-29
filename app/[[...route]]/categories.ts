@@ -1,19 +1,19 @@
-import { clerkMiddleware, getAuth } from "@hono/clerk-auth";
-import { zValidator } from "@hono/zod-validator";
-import { createId } from "@paralleldrive/cuid2";
-import { and, eq, inArray } from "drizzle-orm";
-import { Hono } from "hono";
-import { z } from "zod";
+import { clerkMiddleware, getAuth } from '@hono/clerk-auth';
+import { zValidator } from '@hono/zod-validator';
+import { createId } from '@paralleldrive/cuid2';
+import { and, eq, inArray } from 'drizzle-orm';
+import { Hono } from 'hono';
+import { z } from 'zod';
 
-import { db } from "@/db/drizzle";
-import { categories, insertCategorySchema } from "@/db/schema";
+import { db } from '@/db/drizzle';
+import { categories, insertCategorySchema } from '@/db/schema';
 
 const app = new Hono()
-  .get("/", clerkMiddleware(), async (ctx) => {
+  .get('/', clerkMiddleware(), async (ctx) => {
     const auth = getAuth(ctx);
 
     if (!auth?.userId) {
-      return ctx.json({ error: "Unauthorized." }, 401);
+      return ctx.json({ success: false, error: 'Akses ditolak.' }, 401);
     }
 
     const data = await db
@@ -27,9 +27,9 @@ const app = new Hono()
     return ctx.json({ data });
   })
   .get(
-    "/:id",
+    '/:id',
     zValidator(
-      "param",
+      'param',
       z.object({
         id: z.string().optional(),
       })
@@ -37,14 +37,14 @@ const app = new Hono()
     clerkMiddleware(),
     async (ctx) => {
       const auth = getAuth(ctx);
-      const { id } = ctx.req.valid("param");
+      const { id } = ctx.req.valid('param');
 
       if (!id) {
-        return ctx.json({ error: "Missing id." }, 400);
+        return ctx.json({ success: false, error: 'ID tidak ditemukan.' }, 400);
       }
 
       if (!auth?.userId) {
-        return ctx.json({ error: "Unauthorized." }, 401);
+        return ctx.json({ success: false, error: 'Akses ditolak.' }, 401);
       }
 
       const [data] = await db
@@ -56,27 +56,30 @@ const app = new Hono()
         .where(and(eq(categories.userId, auth.userId), eq(categories.id, id)));
 
       if (!data) {
-        return ctx.json({ error: "Not found." }, 404);
+        return ctx.json(
+          { success: false, error: 'Data tidak ditemukan.' },
+          404
+        );
       }
 
       return ctx.json({ data });
     }
   )
   .post(
-    "/",
+    '/',
     clerkMiddleware(),
     zValidator(
-      "json",
+      'json',
       insertCategorySchema.pick({
         name: true,
       })
     ),
     async (ctx) => {
       const auth = getAuth(ctx);
-      const values = ctx.req.valid("json");
+      const values = ctx.req.valid('json');
 
       if (!auth?.userId) {
-        return ctx.json({ error: "Unauthorized." }, 401);
+        return ctx.json({ success: false, error: 'Akses ditolak.' }, 401);
       }
 
       const [data] = await db
@@ -92,20 +95,22 @@ const app = new Hono()
     }
   )
   .post(
-    "/bulk-delete",
+    '/bulk-delete',
     clerkMiddleware(),
     zValidator(
-      "json",
+      'json',
       z.object({
-        ids: z.array(z.string()),
+        ids: z
+          .array(z.string())
+          .min(1, { message: 'Pilih setidaknya satu kategori untuk dihapus.' }),
       })
     ),
     async (ctx) => {
       const auth = getAuth(ctx);
-      const values = ctx.req.valid("json");
+      const values = ctx.req.valid('json');
 
       if (!auth?.userId) {
-        return ctx.json({ error: "Unauthorized." }, 401);
+        return ctx.json({ success: false, error: 'Akses ditolak.' }, 401);
       }
 
       const data = await db
@@ -124,31 +129,31 @@ const app = new Hono()
     }
   )
   .patch(
-    "/:id",
+    '/:id',
     clerkMiddleware(),
     zValidator(
-      "param",
+      'param',
       z.object({
         id: z.string().optional(),
       })
     ),
     zValidator(
-      "json",
+      'json',
       insertCategorySchema.pick({
         name: true,
       })
     ),
     async (ctx) => {
       const auth = getAuth(ctx);
-      const { id } = ctx.req.valid("param");
-      const values = ctx.req.valid("json");
+      const { id } = ctx.req.valid('param');
+      const values = ctx.req.valid('json');
 
       if (!id) {
-        return ctx.json({ error: "Missing id." }, 400);
+        return ctx.json({ success: false, error: 'ID tidak ditemukan.' }, 400);
       }
 
       if (!auth?.userId) {
-        return ctx.json({ error: "Unauthorized." }, 401);
+        return ctx.json({ success: false, error: 'Akses ditolak.' }, 401);
       }
 
       const [data] = await db
@@ -158,31 +163,34 @@ const app = new Hono()
         .returning();
 
       if (!data) {
-        return ctx.json({ error: "Not found." }, 404);
+        return ctx.json(
+          { success: false, error: 'Data tidak ditemukan.' },
+          404
+        );
       }
 
       return ctx.json({ data });
     }
   )
   .delete(
-    "/:id",
+    '/:id',
     clerkMiddleware(),
     zValidator(
-      "param",
+      'param',
       z.object({
         id: z.string().optional(),
       })
     ),
     async (ctx) => {
       const auth = getAuth(ctx);
-      const { id } = ctx.req.valid("param");
+      const { id } = ctx.req.valid('param');
 
       if (!id) {
-        return ctx.json({ error: "Missing id." }, 400);
+        return ctx.json({ success: false, error: 'ID tidak ditemukan.' }, 400);
       }
 
       if (!auth?.userId) {
-        return ctx.json({ error: "Unauthorized." }, 401);
+        return ctx.json({ success: false, error: 'Akses ditolak.' }, 401);
       }
 
       const [data] = await db
@@ -193,7 +201,10 @@ const app = new Hono()
         });
 
       if (!data) {
-        return ctx.json({ error: "Not found." }, 404);
+        return ctx.json(
+          { success: false, error: 'Data tidak ditemukan.' },
+          404
+        );
       }
 
       return ctx.json({ data });
