@@ -1,6 +1,6 @@
-import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
-import { eachDayOfInterval, format, isSameDay, subDays } from "date-fns";
+import { type ClassValue, clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+import { eachDayOfInterval, format, isSameDay, subDays } from 'date-fns';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -15,10 +15,11 @@ export function convertAmountToMilliunits(amount: number) {
 }
 
 export function formatCurrency(value: number) {
-  return Intl.NumberFormat("en-us", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(value);
 }
 
@@ -72,28 +73,28 @@ export function formatDateRange(period?: Period) {
   const defaultFrom = subDays(defaultTo, 30);
 
   if (!period?.from) {
-    return `${format(defaultFrom, "LLL dd")} - ${format(
+    return `${format(defaultFrom, 'LLL dd')} - ${format(
       defaultTo,
-      "LLL dd, y"
+      'LLL dd, y'
     )}`;
   }
 
   if (period?.to) {
-    return `${format(period.from, "LLL dd")} - ${format(
+    return `${format(period.from, 'LLL dd')} - ${format(
       period.to,
-      "LLL dd, y"
+      'LLL dd, y'
     )}`;
   }
 
-  return format(period.from, "LLL dd, y");
+  return format(period.from, 'LLL dd, y');
 }
 
 export function formatPercentage(
   value: number,
   options: { addPrefix?: boolean } = { addPrefix: false }
 ) {
-  const result = new Intl.NumberFormat("en-US", {
-    style: "percent",
+  const result = new Intl.NumberFormat('en-US', {
+    style: 'percent',
   }).format(value / 100);
 
   if (options.addPrefix && value > 0) return `+${result}`;
