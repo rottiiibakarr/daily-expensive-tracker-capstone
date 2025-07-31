@@ -1,5 +1,3 @@
-// File: expensive-daily-tracker-capstone/app/[[...route]]/accounts.ts
-
 import { clerkMiddleware, getAuth } from '@hono/clerk-auth';
 import { zValidator } from '@hono/zod-validator';
 import { createId } from '@paralleldrive/cuid2';
@@ -15,7 +13,7 @@ const app = new Hono()
     const auth = getAuth(ctx);
 
     if (!auth?.userId) {
-      // Konsistensi respons error
+      // Respons error
       return ctx.json({ success: false, error: 'Akses ditolak.' }, 401);
     }
 
@@ -34,7 +32,6 @@ const app = new Hono()
     zValidator(
       'param',
       z.object({
-        // Pesan error lebih spesifik
         id: z.string().optional(),
       })
     ),
@@ -48,6 +45,7 @@ const app = new Hono()
       }
 
       if (!auth?.userId) {
+        // Respons error
         return ctx.json({ success: false, error: 'Akses ditolak.' }, 401);
       }
 
@@ -65,7 +63,6 @@ const app = new Hono()
           404
         );
       }
-
       return ctx.json({ data });
     }
   )
@@ -75,7 +72,6 @@ const app = new Hono()
     zValidator(
       'json',
       insertAccountSchema.pick({
-        // Pesan error lebih spesifik
         name: true,
       })
     ),
@@ -84,6 +80,7 @@ const app = new Hono()
       const values = ctx.req.valid('json');
 
       if (!auth?.userId) {
+        // Respons error
         return ctx.json({ success: false, error: 'Akses ditolak.' }, 401);
       }
 
@@ -105,9 +102,10 @@ const app = new Hono()
     zValidator(
       'json',
       z.object({
-        ids: z
-          .array(z.string())
-          .min(1, { message: 'Pilih setidaknya satu akun untuk dihapus.' }),
+        // Pesan error
+        ids: z.array(
+          z.string({ required_error: 'Daftar ID tidak boleh kosong.' })
+        ),
       })
     ),
     async (ctx) => {
@@ -158,6 +156,7 @@ const app = new Hono()
       }
 
       if (!auth?.userId) {
+        // Respons error
         return ctx.json({ success: false, error: 'Akses ditolak.' }, 401);
       }
 
@@ -195,6 +194,7 @@ const app = new Hono()
       }
 
       if (!auth?.userId) {
+        // Respons error
         return ctx.json({ success: false, error: 'Akses ditolak.' }, 401);
       }
 
