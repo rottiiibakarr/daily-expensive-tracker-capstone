@@ -103,10 +103,10 @@ const app = new Hono()
     zValidator(
       'json',
       z.object({
-        ids: z.array(
-          // Pesan error
-          z.string({ required_error: 'Daftar ID tidak boleh kosong.' })
-        ),
+        // Perbaikan pada array untuk memastikan tidak kosong
+        ids: z
+          .array(z.string())
+          .min(1, { message: 'Pilih setidaknya satu kategori untuk dihapus.' }),
       })
     ),
     async (ctx) => {
